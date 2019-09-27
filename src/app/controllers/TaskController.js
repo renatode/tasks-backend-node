@@ -138,8 +138,27 @@ class TaskController {
    * Body ==> None
    * Desc ==> Remove uma task específica através de seu id.
    */
-  delete() {
-    /** */
+  async delete(req, res) {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Id obrigatório' });
+    }
+
+    // Obtem tarefa 
+    const task = await Task.findByPk(id);
+
+    //valida se a tarefa existe
+    if (!task) {
+      return res.status(400).json({ error: 'Tarefa não existente' });
+    }
+
+    //atualiza tarefa
+    await task.destroy();
+
+    //retorna 
+    return res.json({ status: "ok" });
+
   }
 }
 
