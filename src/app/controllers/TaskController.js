@@ -1,16 +1,42 @@
 import * as Yup from 'yup';
 import Task from '../models/Task';
+import { Op } from 'sequelize';
 
 class TaskController {
   /**
    * Route ==> "/tasks"
    * HTTP Method ==> "get"
-   * Params ==> None
+   * Params ==> page (numero da pagina) - Caso não informa será utilizada como padrão a 1
    * Body ==> task_name (opcional)
    * Desc ==> Lista Taks, Utilizar paginação com 10 itens por página e filtro task Name opcional.
    */
-  index() {
-    /** */
+  async index(req, res) {
+    const { page = 1 } = req.query;
+    let opts = {};
+
+    // Configura schema de validação do Body
+    const schema = Yup.object().shape({
+      task_name: Yup.string().required().max(255),
+    });
+
+    // Valida o Body
+    if (req.body.task_name && !(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Falha na validação dos dados de entrada' });
+    }
+
+    //adiciona where opcional
+    if (req.body.task_name) {
+      opts.where = { task_name: { [Op.like]: `%${req.body.task_name}%` } }
+    }
+
+    // Adiciona paginação
+    opts.limit = 10;
+    opts.offset = (page - 1) * 10;
+
+    //Lista Tasks
+    const tasks = await Task.findAll(opts);
+
+    return res.status(200).json(tasks);
   }
 
   /**
