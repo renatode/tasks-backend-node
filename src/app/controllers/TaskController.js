@@ -90,8 +90,45 @@ class TaskController {
    * Body ==> task_name (obrigatório)
    * Desc ==> Atualiza uma task específica através de seu id.
    */
-  update() {
-    /** */
+  async update(req, res) {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Id obrigatório' });
+    }
+
+    // Configura schema de validação do Body
+    const schema = Yup.object().shape({
+      task_name: Yup.string().required().max(255),
+    });
+
+    // Valida o Body
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Falha na validação dos dados de entrada' });
+    }
+
+    const { task_name } = req.body;
+
+    //Valida se já existe tarefa com o mesmo nome
+    const taskNameExists = await Task.findOne({ where: { task_name } });
+    if (taskNameExists) {
+      return res.status(400).json({ error: 'Tarefa já existente' });
+    }
+
+    // Obtem tarefa 
+    const task = await Task.findByPk(id);
+
+    //valida se a tarefa existe
+    if (!task) {
+      return res.status(400).json({ error: 'Tarefa não existente' });
+    }
+
+    //atualiza tarefa
+    const newTask = await task.update(req.body);
+
+    //retorna tarefa atualizada
+    return res.json(newTask);
+
   }
 
   /**
