@@ -15,6 +15,14 @@ class App {
 
   middlewares() {
     this.server.use(express.json());
+
+    //CORS
+    this.server.use(function (req, res, next) {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+      next();
+    });
   }
 
   routes() {

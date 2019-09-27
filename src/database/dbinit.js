@@ -11,8 +11,6 @@ class Database {
   }
 
   init() {
-    console.log("sdfds");
-
     this.connection = new Squelize(databaseConfig);
 
     this.connection
