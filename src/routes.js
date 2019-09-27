@@ -2,8 +2,8 @@ import { Router } from 'express';
 
 const routes = new Router();
 
-routes.get('/', (req, res) => {
-  return res.send("OK")
-});
+import TasksController from './app/controllers/TaskController';
+
+routes.post('/tasks', TasksController.store);
 
 export default routes;
